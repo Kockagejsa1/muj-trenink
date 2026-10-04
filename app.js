@@ -78,7 +78,10 @@ function datePickerHtml(){
 }
 function showDatePicker(){
   const r=document.getElementById('modalRoot');
-  try{sessionStorage.setItem('pickerMonth',state.selectedDate.slice(0,7))}catch(e){}
+  try{
+    const pm=sessionStorage.getItem('pickerMonth');
+    if(!/^\d{4}-\d{2}$/.test(pm||'')) sessionStorage.setItem('pickerMonth',state.selectedDate.slice(0,7));
+  }catch(e){}
   r.innerHTML=datePickerHtml();
   const modal=document.getElementById('datePickerModal');
   document.getElementById('cancelDate').onclick=()=>r.innerHTML='';
