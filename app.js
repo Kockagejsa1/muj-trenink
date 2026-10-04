@@ -32,7 +32,7 @@ function isStarted(date,di){const rec=state.history[date]?.[di];return !!(rec&&O
 function render(){document.body.classList.toggle('dark',state.dark);const di=dayIndex(state.selectedDate);const plan=state.plans[di]||[];let cur=Number((()=>{try{return sessionStorage.getItem('currentEx')||0}catch(e){return 0}})());if(cur>=plan.length)cur=0;try{sessionStorage.setItem('currentEx',cur)}catch(e){}const ex=plan[cur];
 let h=`<div class="title">MŮJ TRÉNINK</div><div class="subtitle">VÁHA • x • VÝVOJ</div>`;
 h+=`<div class="row"><div class="label">TRÉNINK</div><button class="valueBtn grow">${DAYS[di]}</button></div>`;
-h+=`<div class="row"><div class="label">DATUM</div><button id="date" class="dateBtn grow" type="button">${formatDateCz(state.selectedDate)}</button></div>`;
+h+=`<div class="row"><div class="label">DATUM</div><button id="date" class="dateBtn grow" type="button">📅 ${formatDateCz(state.selectedDate)}</button></div>`;
 h+=`<button class="blue full" id="start">📅 ZAHÁJIT TRÉNINK</button><div class="sectionGap"></div>`;
 h+=`<div class="row"><div class="label">CVIK</div><select id="exerciseSelect" class="valueBtn grow">${plan.map((e,i)=>`<option value="${i}" ${i===cur?'selected':''}>${esc(e.name)} ${isComplete(state.selectedDate,di)?'✓':''}</option>`).join('')||'<option>Žádný cvik</option>'}</select></div>`;
 h+=`<div class="exercisePos">${ex?`CVIK ${cur+1} / ${plan.length}`:''}</div><div class="exerciseName">${ex?esc(ex.name):'Žádný cvik'}</div><div class="exerciseInfo">${ex?`${ex.sets} sérií • pauza ${fmtPause(ex)}`:''}</div>`;
@@ -53,15 +53,16 @@ function clean(s){return String(s).replace(/[;|\n]/g,' ').trim()}
 function addExerciseDialog(working,rebuild){const r=document.getElementById('modalRoot');r.insertAdjacentHTML('beforeend',`<div class="modalBack" id="addModal"><div class="modal" style="max-width:520px"><div class="modalHead">PŘIDAT CVIK</div><div class="dialog"><label>NÁZEV CVIKU</label><input id="newName" autocomplete="off" inputmode="text" lang="cs"><label>SÉRIE</label><input id="newSets" inputmode="numeric" value="3"><label>PAUZA</label><div class="pauseGrid"><div></div><input id="newPause" inputmode="numeric" value="2"><select id="newUnit"><option value="min">minuty</option><option value="sec">sekundy</option></select></div></div><div class="modalButtons"><button class="ghost" id="cancelAdd">ZRUŠIT</button><button class="blue" id="confirmAdd">PŘIDAT</button></div></div></div>`);document.getElementById('cancelAdd').onclick=()=>document.getElementById('addModal').remove();document.getElementById('confirmAdd').onclick=()=>{const name=clean(document.getElementById('newName').value);if(!name){alert('Zadej název cviku.');return}working.push({name,sets:Math.max(1,Math.min(10,parseInt(document.getElementById('newSets').value)||3)),pauseValue:Math.max(0,parseInt(document.getElementById('newPause').value)||0),pauseUnit:document.getElementById('newUnit').value});document.getElementById('addModal').remove();rebuild()};document.getElementById('newName').focus()}
 
 function formatDateCz(iso){const p=iso.split('-').map(Number);return p.length===3?`${p[2]}. ${p[1]}. ${p[0]}`:iso}
-function datePickerHtml(){
+let pickerMonth=null;
+function datePickerHtml(monthOverride){
   const base=state.selectedDate;
-  let ym=base.slice(0,7);
-  try{ym=sessionStorage.getItem('pickerMonth')||ym}catch(e){}
+  let ym=monthOverride||pickerMonth||base.slice(0,7);
   if(!/^\d{4}-\d{2}$/.test(ym))ym=base.slice(0,7);
+  pickerMonth=ym;
   const [y,mn]=ym.split('-').map(Number),m=mn-1;
   const first=new Date(y,m,1).getDay(),offset=(first+6)%7;
   const monthNames=['Leden','Únor','Březen','Duben','Květen','Červen','Červenec','Srpen','Září','Říjen','Listopad','Prosinec'];
-  let out=`<div class="modalBack" id="datePickerModal"><div class="modal datePicker"><div class="modalHead">VYBERTE DATUM</div><div class="pickerSelected">${formatDateCz(base)}</div><div class="pickerNav"><button class="ghost" id="pickPrev">‹</button><div>${monthNames[m]} ${y}</div><button class="ghost" id="pickNext">›</button></div>`;
+  let out=`<div class="modalBack" id="datePickerModal"><div class="modal datePicker"><div class="modalHead">VYBERTE DATUM</div><div class="pickerSelected">${formatDateCz(base)}</div><div class="pickerNav"><button type="button" class="ghost" id="pickPrev">‹</button><div>${monthNames[m]} ${y}</div><button type="button" class="ghost" id="pickNext">›</button></div>`;
   out+='<div class="calendar pickerCalendar">'+['Po','Út','St','Čt','Pá','So','Ne'].map(x=>`<div class="calHead">${x}</div>`).join('');
   for(let i=0;i<offset;i++)out+='<div></div>';
   const days=new Date(y,m+1,0).getDate();
@@ -71,24 +72,30 @@ function datePickerHtml(){
     if(iso===todayISO())c+=' today';
     if(iso===base)c+=' selectedDate';
     if(isComplete(iso,di))c+=' done';else if(isStarted(iso,di))c+=' started';
-    out+=`<button class="${c}" data-pick-date="${iso}">${n}${isComplete(iso,di)?' ✓':isStarted(iso,di)?' •':''}</button>`;
+    out+=`<button type="button" class="${c}" data-pick-date="${iso}">${n}${isComplete(iso,di)?' ✓':isStarted(iso,di)?' •':''}</button>`;
   }
-  out+='</div><div class="editorBottom"><button class="ghost" id="cancelDate">ZRUŠIT</button><button class="blue" id="todayDate">DNES</button></div></div></div>';
+  out+='</div><div class="editorBottom"><button type="button" class="ghost" id="cancelDate">ZRUŠIT</button><button type="button" class="blue" id="todayDate">DNES</button></div></div></div>';
   return out;
 }
-function showDatePicker(){
+function showDatePicker(monthOverride){
   const r=document.getElementById('modalRoot');
-  try{
-    const pm=sessionStorage.getItem('pickerMonth');
-    if(!/^\d{4}-\d{2}$/.test(pm||'')) sessionStorage.setItem('pickerMonth',state.selectedDate.slice(0,7));
-  }catch(e){}
-  r.innerHTML=datePickerHtml();
+  if(monthOverride) pickerMonth=monthOverride;
+  else if(!pickerMonth) pickerMonth=state.selectedDate.slice(0,7);
+  r.innerHTML=datePickerHtml(pickerMonth);
   const modal=document.getElementById('datePickerModal');
-  document.getElementById('cancelDate').onclick=()=>r.innerHTML='';
-  document.getElementById('todayDate').onclick=()=>{state.selectedDate=todayISO();save();r.innerHTML='';render()};
-  document.getElementById('pickPrev').onclick=()=>{let ym=sessionStorage.getItem('pickerMonth')||state.selectedDate.slice(0,7);let [y,m]=ym.split('-').map(Number);m--;if(m<1){m=12;y--}sessionStorage.setItem('pickerMonth',`${y}-${String(m).padStart(2,'0')}`);showDatePicker()};
-  document.getElementById('pickNext').onclick=()=>{let ym=sessionStorage.getItem('pickerMonth')||state.selectedDate.slice(0,7);let [y,m]=ym.split('-').map(Number);m++;if(m>12){m=1;y++}sessionStorage.setItem('pickerMonth',`${y}-${String(m).padStart(2,'0')}`);showDatePicker()};
-  modal.querySelectorAll('[data-pick-date]').forEach(b=>b.onclick=()=>{state.selectedDate=b.dataset.pickDate;save();r.innerHTML='';render()});
+  document.getElementById('cancelDate').onclick=()=>{pickerMonth=null;r.innerHTML=''};
+  document.getElementById('todayDate').onclick=()=>{state.selectedDate=todayISO();pickerMonth=null;save();r.innerHTML='';render()};
+  document.getElementById('pickPrev').onclick=()=>{
+    let [y,m]=pickerMonth.split('-').map(Number); m--; if(m<1){m=12;y--}
+    pickerMonth=`${y}-${String(m).padStart(2,'0')}`;
+    showDatePicker(pickerMonth);
+  };
+  document.getElementById('pickNext').onclick=()=>{
+    let [y,m]=pickerMonth.split('-').map(Number); m++; if(m>12){m=1;y++}
+    pickerMonth=`${y}-${String(m).padStart(2,'0')}`;
+    showDatePicker(pickerMonth);
+  };
+  modal.querySelectorAll('[data-pick-date]').forEach(b=>b.onclick=()=>{state.selectedDate=b.dataset.pickDate;pickerMonth=null;save();r.innerHTML='';render()});
 }
 function showHistory(){try{const cm=sessionStorage.getItem('calendarMonth');if(!/^\d{4}-\d{2}$/.test(cm||''))sessionStorage.setItem('calendarMonth',state.selectedDate.slice(0,7))}catch(e){}const r=document.getElementById('modalRoot');let dates=Object.keys(state.history).sort().reverse();let html=`<div class="modalBack"><div class="modal"><div class="modalHead">HISTORIE / STATISTIKY</div><div class="modalScroll">${dates.length?dates.map(d=>{const out=[];for(let di=0;di<7;di++){const rec=state.history[d]?.[di];if(!rec)continue;const plan=state.plans[di]||[];Object.keys(rec).forEach(i=>{const e=plan[i];if(e)out.push(`<div class="historyItem"><b>${DAYS[di]} – ${esc(e.name)}</b><br>${rec[i].map((s,k)=>`Série ${k+1}: ${esc(s.weight)} kg × ${esc(s.reps)}`).join(' • ')}</div>`)});}return `<div class="historyDay"><div class="historyTitle">${d}</div>${out.join('')||'Bez záznamu'}</div>`}).join(''):'<p>Historie je zatím prázdná.</p>'}<hr><h3>KALENDÁŘ</h3>${calendarHtml()}<h3>STATISTIKY</h3>${statsHtml()}</div><div class="editorBottom"><button class="blue" id="closeHistory">ZAVŘÍT</button><button class="blue" id="deleteHistory">SMAZAT HISTORII</button></div></div></div>`;r.innerHTML=html;document.getElementById('closeHistory').onclick=()=>r.innerHTML='';document.getElementById('deleteHistory').onclick=()=>{if(confirm('Smazat celou historii?')){state.history={};save();showHistory()}};r.querySelectorAll('[data-date]').forEach(b=>b.onclick=()=>{state.selectedDate=b.dataset.date;try{sessionStorage.setItem('calendarMonth',b.dataset.date.slice(0,7))}catch(e){}save();r.innerHTML='';render()});r.querySelector('[data-cal-prev]')?.addEventListener('click',()=>{let ym=sessionStorage.getItem('calendarMonth')||state.selectedDate.slice(0,7);let [y,m]=ym.split('-').map(Number);m--;if(m<1){m=12;y--}sessionStorage.setItem('calendarMonth',`${y}-${String(m).padStart(2,'0')}`);showHistory()});r.querySelector('[data-cal-next]')?.addEventListener('click',()=>{let ym=sessionStorage.getItem('calendarMonth')||state.selectedDate.slice(0,7);let [y,m]=ym.split('-').map(Number);m++;if(m>12){m=1;y++}sessionStorage.setItem('calendarMonth',`${y}-${String(m).padStart(2,'0')}`);showHistory()});}
 function calendarHtml(){
