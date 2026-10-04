@@ -1,3 +1,15 @@
+/* BOOT ERROR HANDLER */
+(function(){
+  function showBootError(label, err){
+    try{
+      var a=document.getElementById('app');
+      if(a){a.innerHTML='<div style=\"padding:28px;font-family:Arial;color:#111;background:#fff\"><h2 style=\"color:#1976d2\">MŮJ TRÉNINK</h2><p><b>'+label+'</b></p><pre style=\"white-space:pre-wrap;font-size:13px\">'+String(err&&err.stack||err).replace(/[&<>]/g,function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[m]})+'</pre></div>';}
+    }catch(_){}
+  }
+  window.addEventListener('error',function(e){showBootError('CHYBA JAVASCRIPTU',e.error||e.message);});
+  window.addEventListener('unhandledrejection',function(e){showBootError('CHYBA JAVASCRIPTU',e.reason);});
+})();
+
 const DAYS=['PONDĚLÍ','ÚTERÝ','STŘEDA','ČTVRTEK','PÁTEK','SOBOTA','NEDĚLE'];
 const KEY='mujTreninkPWA_v1';
 const defaults=[
@@ -8,7 +20,7 @@ const defaults=[
  [{name:'Leg Press',sets:3,pauseValue:2,pauseUnit:'min'},{name:'Chest Press',sets:3,pauseValue:2,pauseUnit:'min'},{name:'Biceps',sets:3,pauseValue:1,pauseUnit:'min'}],[],[]
 ];
 let state=load();
-function load(){try{const x=JSON.parse(localStorage.getItem(KEY)); if(x){x.plans=x.plans||clone(defaults);x.history=x.history||{};x.dark=!!x.dark;x.timerEnabled=x.timerEnabled!==false;return x}}catch(e){} return {plans:clone(defaults),history:{},dark:false,timerEnabled:true,selectedDate:todayISO(),copiedPlan:null,copiedDay:''}}
+function load(){try{const x=JSON.parse(localStorage.getItem(KEY)); if(x&&Array.isArray(x.plans)){x.plans=clone(x.plans);while(x.plans.length<7)x.plans.push([]);x.plans=x.plans.slice(0,7);for(let i=0;i<7;i++)if(!Array.isArray(x.plans[i]))x.plans[i]=[];x.history=(x.history&&typeof x.history==='object')?x.history:{};x.dark=!!x.dark;x.timerEnabled=x.timerEnabled!==false;x.selectedDate=(typeof x.selectedDate==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(x.selectedDate))?x.selectedDate:todayISO();x.copiedPlan=Array.isArray(x.copiedPlan)?x.copiedPlan:null;x.copiedDay=typeof x.copiedDay==='string'?x.copiedDay:'';return x}}catch(e){} return {plans:clone(defaults),history:{},dark:false,timerEnabled:true,selectedDate:todayISO(),copiedPlan:null,copiedDay:''}}
 function save(){localStorage.setItem(KEY,JSON.stringify(state))}
 function todayISO(){return new Date().toISOString().slice(0,10)}
 function dayIndex(date){let d=new Date(date+'T12:00:00').getDay();return (d+6)%7}
