@@ -1,5 +1,62 @@
-<!doctype html><html lang="cs"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>MŮJ TRÉNINK – test</title><style>body{font-family:Arial;padding:24px;background:#fff;color:#111}.ok{color:#198754}.err{color:#c62828;white-space:pre-wrap;word-break:break-word}#app{margin-top:20px;padding:16px;border:1px solid #ccc;border-radius:8px}</style></head><body><h2>MŮJ TRÉNINK – TEST</h2><div id="msg">Načítám app.js…</div><div id="app"></div><script>window.addEventListener("error",function(e){document.getElementById("msg").className="err";document.getElementById("msg").textContent="CHYBA JAVASCRIPTU:
-"+(e.message||"Neznámá chyba")+"
-Soubor: "+(e.filename||"")+"
-Řádek: "+(e.lineno||"")+" Sloupec: "+(e.colno||"");});window.addEventListener("unhandledrejection",function(e){document.getElementById("msg").className="err";document.getElementById("msg").textContent="CHYBA PROMISE:
-"+String(e.reason);});</script><script src="app.js?v=diag68"></script><script>setTimeout(function(){if(document.getElementById("app").innerHTML.trim()){document.getElementById("msg").className="ok";document.getElementById("msg").textContent="app.js se načetl a aplikace vytvořila obsah.";}},1500);</script></body></html>
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MŮJ TRÉNINK – diagnostika</title>
+<style>
+body{font-family:Arial,sans-serif;padding:20px;background:#fff;color:#111}
+.box{border:1px solid #bbb;border-radius:10px;padding:16px}
+.ok{color:#198754}.err{color:#c62828;white-space:pre-wrap;word-break:break-word}
+code{font-size:12px}
+</style>
+</head>
+<body>
+<div class="box">
+<h2>MŮJ TRÉNINK – DIAGNOSTIKA</h2>
+<div id="msg">Načítám app.js…</div>
+<div id="detail"></div>
+</div>
+
+<script>
+(function(){
+  const msg=document.getElementById('msg');
+  const detail=document.getElementById('detail');
+  function showError(title, detailText){
+    msg.className='err';
+    msg.textContent=title;
+    detail.innerHTML='<pre class="err">'+String(detailText||'').replace(/[&<>]/g,
+      function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c];})+'</pre>';
+  }
+  const oldError=console.error;
+  console.error=function(){
+    const args=[].slice.call(arguments);
+    oldError.apply(console,args);
+    if(args[0] instanceof Error){
+      showError('CHYBA PŘI SPUŠTĚNÍ APP.JS', args[0].stack||args[0].message);
+    } else if(args.length){
+      showError('CHYBA PŘI SPUŠTĚNÍ APP.JS', args.map(String).join(' '));
+    }
+  };
+  window.addEventListener('error',function(e){
+    showError('CHYBA JAVASCRIPTU',
+      (e.message||'Neznámá chyba')+'\nSoubor: '+(e.filename||'')+
+      '\nŘádek: '+(e.lineno||'')+'  Sloupec: '+(e.colno||''));
+  });
+  window.addEventListener('unhandledrejection',function(e){
+    showError('CHYBA PROMISE',String(e.reason));
+  });
+  window.addEventListener('load',function(){
+    setTimeout(function(){
+      if(msg.className!=='err'){
+        msg.className='ok';
+        msg.textContent='app.js se načetl bez zachycené chyby.';
+        detail.innerHTML='<p>Pokud je stránka přesto prázdná, problém je v běhu aplikace.</p>';
+      }
+    },1200);
+  });
+})();
+</script>
+<script src="app.js?v=diag69"></script>
+</body>
+</html>
