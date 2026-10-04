@@ -28,22 +28,6 @@ button,input,select{font:inherit}button{border:0;border-radius:7px;min-height:44
 <body>
 <div id="app" class="app"></div>
 <div id="modalRoot"></div>
-<script>
-(async function(){
-  try {
-    if ('serviceWorker' in navigator) {
-      const regs = await navigator.serviceWorker.getRegistrations();
-      await Promise.all(regs.map(r => r.unregister()));
-    }
-    if ('caches' in window) {
-      const keys = await caches.keys();
-      await Promise.all(keys.map(k => caches.delete(k)));
-    }
-  } catch(e) {}
-  const s=document.createElement('script');
-  s.src='app.js?v=final70&_='+Date.now();
-  document.body.appendChild(s);
-})();
-</script>
+<script src="app.js?v=final71"></script>
 </body>
 </html>
