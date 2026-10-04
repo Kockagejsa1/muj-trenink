@@ -1,0 +1,10 @@
+{
+  "name":"MŮJ TRÉNINK",
+  "short_name":"Můj Trénink",
+  "lang":"cs-CZ",
+  "start_url":"./",
+  "display":"standalone",
+  "background_color":"#ffffff",
+  "theme_color":"#1976d2",
+  "icons":[{"src":"icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}]
+}
