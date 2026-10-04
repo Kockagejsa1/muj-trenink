@@ -3,60 +3,64 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>MŮJ TRÉNINK – diagnostika</title>
+<title>MŮJ TRÉNINK – TEST app.js</title>
 <style>
-body{font-family:Arial,sans-serif;padding:20px;background:#fff;color:#111}
-.box{border:1px solid #bbb;border-radius:10px;padding:16px}
-.ok{color:#198754}.err{color:#c62828;white-space:pre-wrap;word-break:break-word}
-code{font-size:12px}
+body{font-family:Arial,sans-serif;background:#fff;color:#111;padding:20px;line-height:1.45}
+h1{font-size:24px;margin-bottom:6px}
+h2{font-size:18px;margin-top:24px}
+.box{border:1px solid #bbb;border-radius:10px;padding:14px;margin:12px 0;word-break:break-word}
+.ok{color:#087a20}.bad{color:#b00020}.mono{font-family:monospace;font-size:12px;white-space:pre-wrap}
 </style>
 </head>
 <body>
-<div class="box">
-<h2>MŮJ TRÉNINK – DIAGNOSTIKA</h2>
-<div id="msg">Načítám app.js…</div>
-<div id="detail"></div>
-</div>
+<h1>MŮJ TRÉNINK – TEST app.js</h1>
+<p>Tento test pouze ověřuje, zda GitHub Pages správně doručuje soubor <b>app.js</b>. Aplikaci nespouští.</p>
+<div id="result" class="box">Testuji načtení app.js…</div>
+<div id="details" class="box"></div>
 
 <script>
-(function(){
-  const msg=document.getElementById('msg');
-  const detail=document.getElementById('detail');
-  function showError(title, detailText){
-    msg.className='err';
-    msg.textContent=title;
-    detail.innerHTML='<pre class="err">'+String(detailText||'').replace(/[&<>]/g,
-      function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c];})+'</pre>';
-  }
-  const oldError=console.error;
-  console.error=function(){
-    const args=[].slice.call(arguments);
-    oldError.apply(console,args);
-    if(args[0] instanceof Error){
-      showError('CHYBA PŘI SPUŠTĚNÍ APP.JS', args[0].stack||args[0].message);
-    } else if(args.length){
-      showError('CHYBA PŘI SPUŠTĚNÍ APP.JS', args.map(String).join(' '));
+(async function(){
+  const result=document.getElementById('result');
+  const details=document.getElementById('details');
+  const url='app.js?v=loadtest70&_=' + Date.now();
+  try{
+    const response=await fetch(url,{cache:'no-store'});
+    const text=await response.text();
+    let out='';
+    out += '<b>HTTP status:</b> '+response.status+'<br>';
+    out += '<b>OK:</b> '+response.ok+'<br>';
+    out += '<b>Content-Type:</b> '+(response.headers.get('content-type')||'(neuveden)')+'<br>';
+    out += '<b>URL odpovědi:</b> '+response.url+'<br>';
+    out += '<b>Délka app.js:</b> '+text.length+' znaků<br><br>';
+    out += '<b>Prvních 500 znaků:</b><div class="mono">'+
+      text.slice(0,500).replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]))+
+      '</div>';
+    details.innerHTML=out;
+
+    if(!response.ok){
+      result.className='box bad';
+      result.innerHTML='<b>✗ app.js se nepodařilo načíst.</b>';
+      return;
     }
-  };
-  window.addEventListener('error',function(e){
-    showError('CHYBA JAVASCRIPTU',
-      (e.message||'Neznámá chyba')+'\nSoubor: '+(e.filename||'')+
-      '\nŘádek: '+(e.lineno||'')+'  Sloupec: '+(e.colno||''));
-  });
-  window.addEventListener('unhandledrejection',function(e){
-    showError('CHYBA PROMISE',String(e.reason));
-  });
-  window.addEventListener('load',function(){
-    setTimeout(function(){
-      if(msg.className!=='err'){
-        msg.className='ok';
-        msg.textContent='app.js se načetl bez zachycené chyby.';
-        detail.innerHTML='<p>Pokud je stránka přesto prázdná, problém je v běhu aplikace.</p>';
-      }
-    },1200);
-  });
+
+    try{
+      new Function(text);
+      result.className='box ok';
+      result.innerHTML='<b>✓ app.js byl načten a syntakticky je v pořádku.</b>';
+    }catch(e){
+      result.className='box bad';
+      result.innerHTML='<b>✗ app.js byl načten, ale obsahuje chybu syntaxe.</b><br><span class="mono">'+
+        String(e).replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]))+
+        '</span>';
+    }
+  }catch(e){
+    result.className='box bad';
+    result.innerHTML='<b>✗ Fetch app.js selhal.</b><br><span class="mono">'+
+      String(e).replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]))+
+      '</span>';
+    details.innerHTML='<b>Požadovaná URL:</b> '+url;
+  }
 })();
 </script>
-<script src="app.js?v=diag69"></script>
 </body>
 </html>
