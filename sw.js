@@ -1,1 +1,2 @@
-// Service worker intentionally disabled in v67.
+self.addEventListener('install', e => self.skipWaiting());
+self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));

@@ -1,9 +1,27 @@
-# MŮJ TRÉNINK – PWA v65
+# Můj Trénink – PWA
 
-PWA verze odpovídá Android v65.
+Webová/PWA verze aplikace MŮJ TRÉNINK. Funguje bez serveru a data ukládá do prohlížeče v zařízení.
 
-Nově podporuje **individuální plán pro konkrétní datum**: změna např. Leg Press → Dřepy pro jednu středu platí pouze pro dané datum a nemění pravidelný středeční plán.
+## Funkce
+- 7 samostatných plánů Po–Ne
+- úprava plánu, přidání/smazání/přesun cviku
+- počet sérií, pauza a jednotka minuty/sekundy
+- KOPÍROVAT PLÁN / VLOŽIT PLÁN
+- ZPĚT bez uložení / ULOŽIT ZMĚNY
+- zapisování váhy a opakování jednotlivých sérií
+- stav SPLNĚNO / NEDOKONČENO
+- volitelný časovač pauzy
+- historie, kalendář a základní statistiky
+- světlý/tmavý režim
+- export/import zálohy JSON
+- PWA instalovatelná na Android jako aplikace
 
-JSON export/import obsahuje i tyto datumové výjimky a je určen pro přenos Android ↔ PWA.
+## GitHub Pages
+1. Na GitHubu otevři svůj repozitář `muj-trenink`.
+2. Nahraj **obsah této složky**, ne celou složku jako další podsložku.
+3. V repozitáři otevři Settings → Pages.
+4. Zvol Deploy from a branch.
+5. Vyber `main` a `/ (root)` a ulož.
+6. GitHub vytvoří adresu ve tvaru `https://TVE-JMENO.github.io/muj-trenink/`.
 
-Pro GitHub Pages nahraj všechny soubory do kořene repozitáře a nastav Settings → Pages → Deploy from a branch → main → / (root).
+Aplikace nevyžaduje databázi ani Google účet. Každé zařízení má vlastní lokální data.

@@ -2,64 +2,47 @@
 <html lang="cs">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>MŮJ TRÉNINK – TEST app.js</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#1976d2">
+<meta name="description" content="Můj Trénink – jednoduchá webová aplikace pro zapisování tréninku.">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<title>MŮJ TRÉNINK</title>
 <style>
-body{font-family:Arial,sans-serif;background:#fff;color:#111;padding:20px;line-height:1.45}
-h1{font-size:24px;margin-bottom:6px}
-h2{font-size:18px;margin-top:24px}
-.box{border:1px solid #bbb;border-radius:10px;padding:14px;margin:12px 0;word-break:break-word}
-.ok{color:#087a20}.bad{color:#b00020}.mono{font-family:monospace;font-size:12px;white-space:pre-wrap}
+:root{--blue:#1976d2;--blue2:#0d47a1;--bg:#fff;--panel:#f1f1f1;--input:#fff;--text:#111;--muted:#555;--border:#d7d7d7;--ok:#198754;--bad:#c62828}
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:var(--bg);color:var(--text)}
+body.dark{--bg:#141414;--panel:#303034;--input:#737378;--text:#fff;--muted:#ddd;--border:#555}
+button,input,select{font:inherit}button{border:0;border-radius:7px;min-height:44px;padding:8px 12px;font-weight:700;cursor:pointer}.blue{background:var(--blue);color:#fff}.lightBtn{background:var(--blue);color:#fff}.ghost{background:var(--panel);color:var(--text);border:1px solid var(--border)}
+.app{max-width:760px;margin:auto;padding:0 10px 28px}.title{padding-top:15px;text-align:center;font-size:27px;font-weight:800;color:var(--blue)}.subtitle{text-align:center;font-size:11px;font-weight:700;margin:2px 0 10px}
+.row{display:flex;gap:6px;align-items:center;margin:5px 0}.label{width:25%;font-size:17px;font-weight:800}.grow{flex:1}.full{width:100%}
+.valueBtn,.dateBtn{width:100%;background:var(--blue);color:#fff;text-align:center}.sectionGap{height:5px}
+.exercisePos{text-align:center;font-weight:700;min-height:25px}.exerciseName{text-align:center;color:var(--blue);font-size:25px;font-weight:800;min-height:36px}.exerciseInfo{text-align:center;font-size:15px;font-weight:700;min-height:28px}.status{text-align:center;font-size:18px;font-weight:800;min-height:36px;padding:7px}.status.ok{color:var(--ok)}.status.bad{color:var(--bad)}
+.timer{display:none;gap:6px;margin:4px 0}.timer .time{flex:2;background:var(--blue);color:#fff;display:flex;align-items:center;justify-content:center;border-radius:7px;font-weight:800}.timer button{flex:1}.note{min-height:56px;text-align:center;font-size:24px;font-weight:800;padding:12px}
+.setBox{background:var(--panel);padding:10px;border-radius:8px;margin:6px 0}.setTitle{font-weight:800;margin-bottom:5px}.setRow{display:grid;grid-template-columns:1fr 1fr;gap:7px}.setRow label{font-size:12px;font-weight:800}.setRow input{width:100%;height:45px;border:1px solid var(--border);border-radius:6px;background:var(--input);color:var(--text);padding:8px}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px}.actions3{display:grid;grid-template-columns:1fr 1fr 2fr;gap:6px;margin-top:6px}.wide{width:100%;margin-top:6px}
+.modalBack{position:fixed;inset:0;background:rgba(0,0,0,.48);display:flex;align-items:center;justify-content:center;padding:10px;z-index:50}.modal{width:min(720px,100%);max-height:92vh;background:var(--bg);border-radius:10px;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 8px 30px rgba(0,0,0,.35)}.modal.lightEditor{background:#e8e8e8}.modalHead{padding:15px;text-align:center;font-size:22px;font-weight:800}.modalScroll{overflow:auto;padding:0 12px 8px}.editorCard{margin:8px 0 10px}.cvik{font-size:16px;font-weight:800;margin:2px 0 5px}.editorInput{width:100%;height:50px;background:#fff;color:#111;border:1px solid #ddd;border-radius:5px;padding:8px;font-weight:600}.editorGrid{display:grid;grid-template-columns:82px 1fr;align-items:center}.editorLabel{font-size:13px;font-weight:800}.pauseGrid{display:grid;grid-template-columns:82px 1fr 1fr;gap:6px;align-items:center}.unitBox{display:flex;flex-direction:column;height:52px}.unitLabel{text-align:center;font-size:13px;font-weight:800;height:20px}.unitSelect{height:32px;background:#fff;color:#111;border:1px solid #ddd;border-radius:4px;padding:2px 6px;font-weight:700}.editorBtns{display:grid;grid-template-columns:1fr 1fr 2fr;gap:7px;margin-top:4px}.editorBottom{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:7px 12px 12px}.smallNote{font-size:12px;color:var(--muted);padding:4px 0}.modalButtons{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:8px 12px 12px}.dialog{padding:12px}.dialog input,.dialog select{width:100%;height:48px;margin:5px 0;background:#fff;color:#111;border:1px solid #ccc;border-radius:5px;padding:8px}.dialog label{font-size:12px;font-weight:800}
+.historyDay{background:var(--panel);border-radius:8px;padding:9px;margin:7px 0}.historyTitle{font-weight:800}.historyItem{padding:5px 0;border-bottom:1px solid var(--border)}.historyItem:last-child{border-bottom:0}.calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin:8px 0}.calHead{font-size:11px;text-align:center;font-weight:800}.calDay{min-height:48px;padding:4px;border-radius:6px;background:var(--panel);font-size:12px;text-align:center}.calDay.today{outline:2px solid var(--blue)}.calDay.done{background:#d8f3df;color:#176b2e}.calDay.started{background:#ffdede;color:#a71919}.statCard{background:var(--panel);border-radius:8px;padding:10px;margin:7px 0}.bar{height:18px;background:#ddd;border-radius:10px;overflow:hidden;margin:6px 0}.bar>i{display:block;height:100%;background:var(--blue)}.hidden{display:none!important}
+@media(max-width:520px){.label{width:24%}.pauseGrid{grid-template-columns:68px 1fr 1fr}.editorGrid{grid-template-columns:68px 1fr}.editorBtns{grid-template-columns:1fr 1fr 1.8fr}.title{font-size:25px}}
 </style>
 </head>
 <body>
-<h1>MŮJ TRÉNINK – TEST app.js</h1>
-<p>Tento test pouze ověřuje, zda GitHub Pages správně doručuje soubor <b>app.js</b>. Aplikaci nespouští.</p>
-<div id="result" class="box">Testuji načtení app.js…</div>
-<div id="details" class="box"></div>
-
+<div id="app" class="app"></div>
+<div id="modalRoot"></div>
 <script>
 (async function(){
-  const result=document.getElementById('result');
-  const details=document.getElementById('details');
-  const url='app.js?v=loadtest70&_=' + Date.now();
-  try{
-    const response=await fetch(url,{cache:'no-store'});
-    const text=await response.text();
-    let out='';
-    out += '<b>HTTP status:</b> '+response.status+'<br>';
-    out += '<b>OK:</b> '+response.ok+'<br>';
-    out += '<b>Content-Type:</b> '+(response.headers.get('content-type')||'(neuveden)')+'<br>';
-    out += '<b>URL odpovědi:</b> '+response.url+'<br>';
-    out += '<b>Délka app.js:</b> '+text.length+' znaků<br><br>';
-    out += '<b>Prvních 500 znaků:</b><div class="mono">'+
-      text.slice(0,500).replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]))+
-      '</div>';
-    details.innerHTML=out;
-
-    if(!response.ok){
-      result.className='box bad';
-      result.innerHTML='<b>✗ app.js se nepodařilo načíst.</b>';
-      return;
+  try {
+    if ('serviceWorker' in navigator) {
+      const regs = await navigator.serviceWorker.getRegistrations();
+      await Promise.all(regs.map(r => r.unregister()));
     }
-
-    try{
-      new Function(text);
-      result.className='box ok';
-      result.innerHTML='<b>✓ app.js byl načten a syntakticky je v pořádku.</b>';
-    }catch(e){
-      result.className='box bad';
-      result.innerHTML='<b>✗ app.js byl načten, ale obsahuje chybu syntaxe.</b><br><span class="mono">'+
-        String(e).replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]))+
-        '</span>';
+    if ('caches' in window) {
+      const keys = await caches.keys();
+      await Promise.all(keys.map(k => caches.delete(k)));
     }
-  }catch(e){
-    result.className='box bad';
-    result.innerHTML='<b>✗ Fetch app.js selhal.</b><br><span class="mono">'+
-      String(e).replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]))+
-      '</span>';
-    details.innerHTML='<b>Požadovaná URL:</b> '+url;
-  }
+  } catch(e) {}
+  const s=document.createElement('script');
+  s.src='app.js?v=final70&_='+Date.now();
+  document.body.appendChild(s);
 })();
 </script>
 </body>
