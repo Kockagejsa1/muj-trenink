@@ -1,8 +1,8 @@
-# MŮJ TRÉNINK – PWA v82
+# MŮJ TRÉNINK – PWA v83
 
 Tato verze zachovává existující úložiště `mujTreninkPWA_v1` a nepřepisuje ani nemaže uloženou historii, váhy, opakování nebo základní plány.
 
-## Změny ve v82
+## Změny ve v83
 - V rozbalovacím seznamu cviků se u dokončeného cviku zobrazuje zelená ✓.
 - Pauza používá přesný čas konce; po návratu z uzamčeného displeje se čas dopočítá podle skutečného času.
 - Posledních 5 sekund pauzy má zvukové odpočítávání a konec pauzy výraznější zvuk.

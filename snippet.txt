@@ -86,33 +86,9 @@ function stopTimer(){if(timerId)clearTimeout(timerId);timerId=null;timerEndAt=0;
 document.addEventListener('click',e=>{if(e.target.id==='skip')stopTimer();else if(e.target.closest('button'))getAudio()});
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&timerEndAt)timerTick()});
 
-function showEditor(){
-  const di=dayIndex(state.selectedDate);
-  const date=state.selectedDate;
-  const day=DAYS[di];
-  const root=document.getElementById('modalRoot');
-  root.innerHTML=`<div class="modalBack" id="editChoice"><div class="modal lightEditor"><div class="modalHead">UPRAVIT PLÁN</div><div class="dialog"><p><b>${day}</b> – ${formatDateCz(date)}</p><p>Vyber, co chceš upravit:</p></div><div class="modalButtons" style="flex-direction:column"><button class="blue wide" id="editBase">UPRAVIT CELÝ PLÁN – ${day}</button><button class="blue wide" id="editDate">UPRAVIT POUZE ${formatDateCz(date)}</button><button class="ghost wide" id="cancelEditChoice">ZRUŠIT</button></div></div></div>`;
-  document.getElementById('cancelEditChoice').onclick=()=>root.innerHTML='';
-  document.getElementById('editBase').onclick=()=>openEditor(di,clone(state.plans[di]||[]),date,'base');
-  document.getElementById('editDate').onclick=()=>openEditor(di,clone(getPlanForDate(date)),date,'date');
-}
-function openEditor(di,working,date,mode){
-  const root=document.getElementById('modalRoot');
-  const hasOverride=Array.isArray(state.datePlans&&state.datePlans[date]);
-  const title=mode==='base'?`UPRAVIT ZÁKLADNÍ PLÁN – ${DAYS[di]}`:`UPRAVIT POUZE ${formatDateCz(date)}`;
-  root.innerHTML=`<div class="modalBack"><div class="modal lightEditor"><div class="modalHead">${esc(title)}</div><div class="dialog"><p>${mode==='base'?'Tato změna se projeví u všech '+DAYS[di]+' bez vlastní úpravy data.':'Tato změna platí pouze pro '+formatDateCz(date)+'.'}</p></div><div id="editorList" class="modalScroll"></div><div class="modalButtons"><button class="blue" id="copyPlan">KOPÍROVAT PLÁN</button><button class="blue" id="pastePlan">VLOŽIT PLÁN</button></div><div class="modalScroll" style="overflow:visible"><button class="blue wide" id="addExercise">+ PŘIDAT CVIK</button></div><div class="editorBottom"><button class="blue" id="backEdit">ZPĚT</button><button class="blue" id="saveEdit">ULOŽIT ZMĚNY</button></div>${mode==='date'&&hasOverride?'<div class="modalScroll" style="overflow:visible"><button class="ghost wide" id="resetDatePlan">↩ POUŽÍT ZÁKLADNÍ PLÁN PRO TENTO DEN</button></div>':''}</div></div>`;
-  const list=document.getElementById('editorList');
-  function rebuild(){list.innerHTML=working.map((e,i)=>`<div class="editorCard" data-i="${i}"><div class="cvik">CVIK ${i+1}</div><input class="editorInput name" value="${esc(e.name)}"><div class="editorGrid"><div class="editorLabel">SÉRIE</div><input class="editorInput sets" inputmode="numeric" value="${e.sets}"></div><div class="pauseGrid"><div class="editorLabel">PAUZA</div><input class="editorInput pause" inputmode="numeric" value="${e.pauseValue}"><div class="unitBox"><div class="unitLabel">ČAS</div><select class="unitSelect"><option value="min" ${e.pauseUnit==='min'?'selected':''}>minuty</option><option value="sec" ${e.pauseUnit==='sec'?'selected':''}>sekundy</option></select></div></div><div class="editorBtns"><button class="blue up">↑</button><button class="blue down">↓</button><button class="blue del">SMAZAT</button></div></div>`).join('');list.querySelectorAll('.editorCard').forEach(card=>{const i=+card.dataset.i;card.querySelector('.up').onclick=()=>{syncEditor();if(i>0){[working[i-1],working[i]]=[working[i],working[i-1]];rebuild()}};card.querySelector('.down').onclick=()=>{syncEditor();if(i<working.length-1){[working[i+1],working[i]]=[working[i],working[i+1]];rebuild()}};card.querySelector('.del').onclick=()=>{syncEditor();working.splice(i,1);rebuild()}})}
-  rebuild();
-  function syncEditor(){document.querySelectorAll('.editorCard').forEach(card=>{const i=+card.dataset.i;working[i].name=clean(card.querySelector('.name').value);working[i].sets=Math.max(1,Math.min(10,parseInt(card.querySelector('.sets').value)||1));working[i].pauseValue=Math.max(0,parseInt(card.querySelector('.pause').value)||0);working[i].pauseUnit=card.querySelector('.unitSelect').value})}
-  function close(){root.innerHTML=''}
-  document.getElementById('backEdit').onclick=close;
-  document.getElementById('saveEdit').onclick=()=>{syncEditor();if(mode==='base'){state.plans[di]=clone(working)}else{state.datePlans??={};state.datePlans[date]=clone(working)}save();close();render()};
-  if(document.getElementById('resetDatePlan'))document.getElementById('resetDatePlan').onclick=()=>{if(confirm('Zrušit úpravu pouze pro '+formatDateCz(date)+' a použít základní plán?')){delete state.datePlans[date];save();close();render()}};
-  document.getElementById('copyPlan').onclick=()=>{syncEditor();state.copiedPlan=clone(working);state.copiedDay=mode==='base'?DAYS[di]:formatDateCz(date);save();alert('Plán zkopírován.')};
-  document.getElementById('pastePlan').onclick=()=>{if(!state.copiedPlan){alert('Nejdříve zkopíruj některý plán.');return}if(confirm('Nahradit tento plán zkopírovaným plánem?')){working=clone(state.copiedPlan);rebuild()}};
-  document.getElementById('addExercise').onclick=()=>addExerciseDialog(working,rebuild)
-}
+function showEditor(){const di=dayIndex(state.selectedDate);openEditor(di,clone(getPlanForDate(state.selectedDate)),state.selectedDate)}
+function openEditor(di,working,date){const root=document.getElementById('modalRoot');const hasOverride=Array.isArray(state.datePlans&&state.datePlans[date]);root.innerHTML=`<div class="modalBack"><div class="modal lightEditor"><div class="modalHead">UPRAVIT PLÁN – ${esc(date.split('-').reverse().join('. '))}</div><div id="editorList" class="modalScroll"></div><div class="modalButtons"><button class="blue" id="copyPlan">KOPÍROVAT PLÁN</button><button class="blue" id="pastePlan">VLOŽIT PLÁN</button></div><div class="modalScroll" style="overflow:visible"><button class="blue wide" id="addExercise">+ PŘIDAT CVIK</button></div><div class="editorBottom"><button class="blue" id="backEdit">ZPĚT</button><button class="blue" id="saveEdit">ULOŽIT ZMĚNY</button></div>${hasOverride?'<div class="modalScroll" style="overflow:visible"><button class="ghost wide" id="resetDatePlan">↩ POUŽÍT ZÁKLADNÍ PLÁN PRO TENTO DEN</button></div>':''}</div></div>`;const list=document.getElementById('editorList');function rebuild(){list.innerHTML=working.map((e,i)=>`<div class="editorCard" data-i="${i}"><div class="cvik">CVIK ${i+1}</div><input class="editorInput name" value="${esc(e.name)}"><div class="editorGrid"><div class="editorLabel">SÉRIE</div><input class="editorInput sets" inputmode="numeric" value="${e.sets}"></div><div class="pauseGrid"><div class="editorLabel">PAUZA</div><input class="editorInput pause" inputmode="numeric" value="${e.pauseValue}"><div class="unitBox"><div class="unitLabel">ČAS</div><select class="unitSelect"><option value="min" ${e.pauseUnit==='min'?'selected':''}>minuty</option><option value="sec" ${e.pauseUnit==='sec'?'selected':''}>sekundy</option></select></div></div><div class="editorBtns"><button class="blue up">↑</button><button class="blue down">↓</button><button class="blue del">SMAZAT</button></div></div>`).join('');list.querySelectorAll('.editorCard').forEach(card=>{const i=+card.dataset.i;card.querySelector('.up').onclick=()=>{syncEditor();if(i>0){[working[i-1],working[i]]=[working[i],working[i-1]];rebuild()}};card.querySelector('.down').onclick=()=>{syncEditor();if(i<working.length-1){[working[i+1],working[i]]=[working[i],working[i+1]];rebuild()}};card.querySelector('.del').onclick=()=>{syncEditor();working.splice(i,1);rebuild()}})}rebuild();function syncEditor(){document.querySelectorAll('.editorCard').forEach(card=>{const i=+card.dataset.i;working[i].name=clean(card.querySelector('.name').value);working[i].sets=Math.max(1,Math.min(10,parseInt(card.querySelector('.sets').value)||1));working[i].pauseValue=Math.max(0,parseInt(card.querySelector('.pause').value)||0);working[i].pauseUnit=card.querySelector('.unitSelect').value})}
+function close(){root.innerHTML=''}document.getElementById('backEdit').onclick=close;document.getElementById('saveEdit').onclick=()=>{syncEditor();state.datePlans??={};state.datePlans[date]=clone(working);save();close();render()};if(document.getElementById('resetDatePlan'))document.getElementById('resetDatePlan').onclick=()=>{if(confirm('Zrušit úpravu pouze pro '+date.split('-').reverse().join('. ')+' a použít základní plán?')){delete state.datePlans[date];save();close();render()}};document.getElementById('copyPlan').onclick=()=>{syncEditor();state.copiedPlan=clone(working);state.copiedDay=DAYS[di];save();alert('Plán pro '+date.split('-').reverse().join('. ')+' zkopírován.')};document.getElementById('pastePlan').onclick=()=>{if(!state.copiedPlan){alert('Nejdříve zkopíruj některý plán.');return}if(confirm('Nahradit plán pro '+date.split('-').reverse().join('. ')+' zkopírovaným plánem?')){working=clone(state.copiedPlan);rebuild()}};document.getElementById('addExercise').onclick=()=>addExerciseDialog(working,rebuild)}
 function clean(s){return String(s).replace(/[;|\n]/g,' ').trim()}
 function addExerciseDialog(working,rebuild){const r=document.getElementById('modalRoot');r.insertAdjacentHTML('beforeend',`<div class="modalBack" id="addModal"><div class="modal" style="max-width:520px"><div class="modalHead">PŘIDAT CVIK</div><div class="dialog"><label>NÁZEV CVIKU</label><input id="newName" autocomplete="off" inputmode="text" lang="cs"><label>SÉRIE</label><input id="newSets" inputmode="numeric" value="3"><label>PAUZA</label><div class="pauseGrid"><div></div><input id="newPause" inputmode="numeric" value="2"><select id="newUnit"><option value="min">minuty</option><option value="sec">sekundy</option></select></div></div><div class="modalButtons"><button class="ghost" id="cancelAdd">ZRUŠIT</button><button class="blue" id="confirmAdd">PŘIDAT</button></div></div></div>`);document.getElementById('cancelAdd').onclick=()=>document.getElementById('addModal').remove();document.getElementById('confirmAdd').onclick=()=>{const name=clean(document.getElementById('newName').value);if(!name){alert('Zadej název cviku.');return}working.push({name,sets:Math.max(1,Math.min(10,parseInt(document.getElementById('newSets').value)||3)),pauseValue:Math.max(0,parseInt(document.getElementById('newPause').value)||0),pauseUnit:document.getElementById('newUnit').value});document.getElementById('addModal').remove();rebuild()};document.getElementById('newName').focus()}
 
@@ -132,57 +108,3 @@ function datePickerHtml(monthOverride){
   const days=new Date(y,m+1,0).getDate();
   for(let n=1;n<=days;n++){
     const iso=`${y}-${String(m+1).padStart(2,'0')}-${String(n).padStart(2,'0')}`;
-    const di=dayIndex(iso);let c='calDay';
-    if(iso===todayISO())c+=' today';
-    if(iso===base)c+=' selectedDate';
-    if(isComplete(iso,di))c+=' done';else if(isStarted(iso,di))c+=' started';
-    out+=`<button type="button" class="${c}" data-pick-date="${iso}">${n}${isComplete(iso,di)?' ✓':isStarted(iso,di)?' •':''}</button>`;
-  }
-  out+='</div><div class="editorBottom"><button type="button" class="ghost" id="cancelDate">ZRUŠIT</button><button type="button" class="blue" id="todayDate">DNES</button></div></div></div>';
-  return out;
-}
-function showDatePicker(monthOverride){
-  const r=document.getElementById('modalRoot');
-  if(monthOverride) pickerMonth=monthOverride;
-  else if(!pickerMonth) pickerMonth=state.selectedDate.slice(0,7);
-  r.innerHTML=datePickerHtml(pickerMonth);
-  const modal=document.getElementById('datePickerModal');
-  document.getElementById('cancelDate').onclick=()=>{pickerMonth=null;r.innerHTML=''};
-  document.getElementById('todayDate').onclick=()=>{state.selectedDate=todayISO();pickerMonth=null;save();r.innerHTML='';render()};
-  document.getElementById('pickPrev').onclick=()=>{
-    let [y,m]=pickerMonth.split('-').map(Number); m--; if(m<1){m=12;y--}
-    pickerMonth=`${y}-${String(m).padStart(2,'0')}`;
-    showDatePicker(pickerMonth);
-  };
-  document.getElementById('pickNext').onclick=()=>{
-    let [y,m]=pickerMonth.split('-').map(Number); m++; if(m>12){m=1;y++}
-    pickerMonth=`${y}-${String(m).padStart(2,'0')}`;
-    showDatePicker(pickerMonth);
-  };
-  modal.querySelectorAll('[data-pick-date]').forEach(b=>b.onclick=()=>{state.selectedDate=b.dataset.pickDate;pickerMonth=null;save();r.innerHTML='';render()});
-}
-function showHistory(){try{const cm=sessionStorage.getItem('calendarMonth');if(!/^\d{4}-\d{2}$/.test(cm||''))sessionStorage.setItem('calendarMonth',state.selectedDate.slice(0,7))}catch(e){}const r=document.getElementById('modalRoot');let dates=Object.keys(state.history).sort().reverse();let html=`<div class="modalBack"><div class="modal"><div class="modalHead">HISTORIE / STATISTIKY</div><div class="modalScroll">${dates.length?dates.map(d=>{const out=[];for(let di=0;di<7;di++){const rec=state.history[d]?.[di];if(!rec)continue;const plan=getPlanForDate(d);Object.keys(rec).forEach(i=>{const e=plan[i];if(e)out.push(`<div class="historyItem"><b>${DAYS[di]} – ${esc(e.name)}</b><br>${rec[i].map((s,k)=>`Série ${k+1}: ${esc(s.weight)} kg × ${esc(s.reps)}`).join(' • ')}</div>`)});}return `<div class="historyDay"><div class="historyTitle">${d}</div>${out.join('')||'Bez záznamu'}</div>`}).join(''):'<p>Historie je zatím prázdná.</p>'}<hr><h3>KALENDÁŘ</h3>${calendarHtml()}<h3>STATISTIKY</h3>${statsHtml()}</div><div class="editorBottom"><button class="blue" id="closeHistory">ZAVŘÍT</button><button class="blue" id="deleteHistory">SMAZAT HISTORII</button></div></div></div>`;r.innerHTML=html;document.getElementById('closeHistory').onclick=()=>r.innerHTML='';document.getElementById('deleteHistory').onclick=()=>{if(confirm('Smazat celou historii?')){state.history={};save();showHistory()}};r.querySelectorAll('[data-date]').forEach(b=>b.onclick=()=>{state.selectedDate=b.dataset.date;try{sessionStorage.setItem('calendarMonth',b.dataset.date.slice(0,7))}catch(e){}save();r.innerHTML='';render()});r.querySelector('[data-cal-prev]')?.addEventListener('click',()=>{let ym=sessionStorage.getItem('calendarMonth')||state.selectedDate.slice(0,7);let [y,m]=ym.split('-').map(Number);m--;if(m<1){m=12;y--}sessionStorage.setItem('calendarMonth',`${y}-${String(m).padStart(2,'0')}`);showHistory()});r.querySelector('[data-cal-next]')?.addEventListener('click',()=>{let ym=sessionStorage.getItem('calendarMonth')||state.selectedDate.slice(0,7);let [y,m]=ym.split('-').map(Number);m++;if(m>12){m=1;y++}sessionStorage.setItem('calendarMonth',`${y}-${String(m).padStart(2,'0')}`);showHistory()});}
-function calendarHtml(){
-  let ym='';
-  try{ym=sessionStorage.getItem('calendarMonth')||''}catch(e){}
-  if(!/^\d{4}-\d{2}$/.test(ym))ym=state.selectedDate.slice(0,7);
-  let parts=ym.split('-'),y=Number(parts[0]),m=Number(parts[1])-1;
-  const first=new Date(y,m,1).getDay(),offset=(first+6)%7;
-  const monthNames=['Leden','Únor','Březen','Duben','Květen','Červen','Červenec','Srpen','Září','Říjen','Listopad','Prosinec'];
-  let out='<div style="display:grid;grid-template-columns:1fr 2fr 1fr;gap:6px;align-items:center;margin:8px 0"><button class="ghost" data-cal-prev>‹</button><div style="text-align:center;font-weight:800">'+monthNames[m]+' '+y+'</div><button class="ghost" data-cal-next>›</button></div>';
-  out+='<div class="calendar">'+['Po','Út','St','Čt','Pá','So','Ne'].map(x=>`<div class="calHead">${x}</div>`).join('');
-  const days=new Date(y,m+1,0).getDate();
-  for(let i=0;i<offset;i++)out+='<div></div>';
-  for(let n=1;n<=days;n++){
-    const iso=`${y}-${String(m+1).padStart(2,'0')}-${String(n).padStart(2,'0')}`;
-    const di=dayIndex(iso);
-    let c='calDay';
-    if(iso===todayISO())c+=' today';
-    if(isComplete(iso,di))c+=' done';else if(isStarted(iso,di))c+=' started';
-    out+=`<button class="${c}" data-date="${iso}">${n}${isComplete(iso,di)?' ✓':isStarted(iso,di)?' •':''}</button>`;
-  }
-  return out+'</div>';
-}
-function statsHtml(){var totals={};Object.keys(state.history||{}).forEach(function(d){for(var di=0;di<7;di++){var rec=state.history[d]&&state.history[d][di];var plan=getPlanForDate(d);if(!rec)continue;Object.keys(rec).forEach(function(i){var e=plan[i];if(!e)return;var key=e.name;var x=totals[key];if(!x){x={sessions:0,maxW:0,maxR:0};totals[key]=x;}x.sessions++;(rec[i]||[]).forEach(function(s){var w=parseFloat(String(s.weight).replace(',','.'))||0;var r=parseInt(s.reps,10)||0;if(w>x.maxW)x.maxW=w;if(r>x.maxR)x.maxR=r;});});}});return Object.keys(totals).map(function(n){var x=totals[n];return '<div class="statCard"><b>'+esc(n)+'</b><div>Tréninky: '+x.sessions+'</div><div>Max. váha: '+x.maxW+' kg</div><div>Max. opakování: '+x.maxR+'</div></div>';}).join('')||'<p>Zatím nejsou statistická data.</p>'; }
-function backupMenu(){const r=document.getElementById('modalRoot');r.innerHTML=`<div class="modalBack"><div class="modal"><div class="modalHead">ZÁLOHA</div><div class="dialog"><p>Záloha je pouze v tomto zařízení. Export vytvoří soubor JSON, který můžeš později importovat.</p></div><div class="modalButtons"><button class="blue" id="export">EXPORT</button><button class="blue" id="import">IMPORT</button></div><div class="editorBottom"><button class="blue" id="closeB">ZAVŘÍT</button></div></div></div>`;document.getElementById('closeB').onclick=()=>r.innerHTML='';document.getElementById('export').onclick=()=>{const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='muj-trenink-zaloha.json';a.click();URL.revokeObjectURL(a.href)};document.getElementById('import').onclick=()=>{const inp=document.createElement('input');inp.type='file';inp.accept='.json,application/json';inp.onchange=async()=>{try{const x=JSON.parse(await inp.files[0].text());if(!x.plans||!x.history)throw Error();state=x;save();r.innerHTML='';render();alert('Záloha obnovena.')}catch(e){alert('Neplatná záloha.')}};inp.click()}}
-window.addEventListener('error',e=>{const a=document.getElementById('app');if(a&&!a.innerHTML.trim())a.innerHTML='<div style="padding:28px;font-family:Arial;color:#111"><h2>MŮJ TRÉNINK</h2><p>Aplikaci se nepodařilo spustit.</p><p style="font-size:13px">Zkus stránku obnovit.</p></div>'});try{render()}catch(e){const a=document.getElementById('app');a.innerHTML='<div style="padding:28px;font-family:Arial;color:#111"><h2>MŮJ TRÉNINK</h2><p>Chyba při spuštění aplikace.</p><p style="font-size:13px">'+String(e).replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]))+'</p></div>';console.error(e)}if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
