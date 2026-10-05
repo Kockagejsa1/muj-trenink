@@ -1,27 +1,12 @@
-# Můj Trénink – PWA
+# MŮJ TRÉNINK – PWA v82
 
-Webová/PWA verze aplikace MŮJ TRÉNINK. Funguje bez serveru a data ukládá do prohlížeče v zařízení.
+Tato verze zachovává existující úložiště `mujTreninkPWA_v1` a nepřepisuje ani nemaže uloženou historii, váhy, opakování nebo základní plány.
 
-## Funkce
-- 7 samostatných plánů Po–Ne
-- úprava plánu, přidání/smazání/přesun cviku
-- počet sérií, pauza a jednotka minuty/sekundy
-- KOPÍROVAT PLÁN / VLOŽIT PLÁN
-- ZPĚT bez uložení / ULOŽIT ZMĚNY
-- zapisování váhy a opakování jednotlivých sérií
-- stav SPLNĚNO / NEDOKONČENO
-- volitelný časovač pauzy
-- historie, kalendář a základní statistiky
-- světlý/tmavý režim
-- export/import zálohy JSON
-- PWA instalovatelná na Android jako aplikace
+## Změny ve v82
+- V rozbalovacím seznamu cviků se u dokončeného cviku zobrazuje zelená ✓.
+- Pauza používá přesný čas konce; po návratu z uzamčeného displeje se čas dopočítá podle skutečného času.
+- Posledních 5 sekund pauzy má zvukové odpočítávání a konec pauzy výraznější zvuk.
+- Plán lze upravit pouze pro konkrétní datum. Základní plán dne v týdnu zůstává nedotčen.
+- U data s vlastní úpravou lze zvolit „POUŽÍT ZÁKLADNÍ PLÁN PRO TENTO DEN“.
 
-## GitHub Pages
-1. Na GitHubu otevři svůj repozitář `muj-trenink`.
-2. Nahraj **obsah této složky**, ne celou složku jako další podsložku.
-3. V repozitáři otevři Settings → Pages.
-4. Zvol Deploy from a branch.
-5. Vyber `main` a `/ (root)` a ulož.
-6. GitHub vytvoří adresu ve tvaru `https://TVE-JMENO.github.io/muj-trenink/`.
-
-Aplikace nevyžaduje databázi ani Google účet. Každé zařízení má vlastní lokální data.
+Poznámka: běžná PWA/Chrome nemůže zaručit přehrání zvuku po celou dobu, kdy je telefon zcela uzamčen a Chrome je systémem uspán. Po probuzení se ale čas dopočítá podle skutečného času.
