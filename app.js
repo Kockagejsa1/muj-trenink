@@ -36,7 +36,7 @@ function getPlanForDate(date){
 function isExerciseComplete(date,di,i){const rec=state.history[date]?.[di]?.[i];const plan=getPlanForDate(date);return !!plan[i]&&Array.isArray(rec)&&rec.length>=plan[i].sets}
 function isComplete(date,di){const rec=state.history[date]?.[di];const plan=getPlanForDate(date);return plan.length>0&&plan.every((e,i)=>rec?.[i]?.length>=e.sets)}
 function isStarted(date,di){const rec=state.history[date]?.[di];return !!(rec&&Object.keys(rec).length)}
-\nfunction render(){document.body.classList.toggle('dark',state.dark);const di=dayIndex(state.selectedDate);const plan=getPlanForDate(state.selectedDate);let cur=Number((()=>{try{return sessionStorage.getItem('currentEx')||0}catch(e){return 0}})());if(cur>=plan.length)cur=0;try{sessionStorage.setItem('currentEx',cur)}catch(e){}const ex=plan[cur];
+function render(){document.body.classList.toggle('dark',state.dark);const di=dayIndex(state.selectedDate);const plan=getPlanForDate(state.selectedDate);let cur=Number((()=>{try{return sessionStorage.getItem('currentEx')||0}catch(e){return 0}})());if(cur>=plan.length)cur=0;try{sessionStorage.setItem('currentEx',cur)}catch(e){}const ex=plan[cur];
 let h=`<div class="title">MŮJ TRÉNINK</div><div class="subtitle">VÁHA • x • VÝVOJ</div>`;
 h+=`<div class="row"><div class="label">TRÉNINK</div><button class="valueBtn grow">${DAYS[di]}</button></div>`;
 h+=`<div class="row"><div class="label">DATUM</div><button id="date" class="dateBtn grow" type="button">📅 ${formatDateCz(state.selectedDate)}</button></div>`;
