@@ -59,7 +59,7 @@ let timerTotalSec=0;
 let timerLastSec=null;
 let audioCtx=null;
 function getAudio(){try{if(!audioCtx){audioCtx=new (window.AudioContext||window.webkitAudioContext)();}if(audioCtx.state==='suspended')audioCtx.resume();return audioCtx}catch(e){return null}}
-function beep(freq=900,duration=0.16,volume=0.22){try{const c=getAudio();if(!c)return;const o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.value=freq;const scaled=Math.min(0.95,volume*(Number(state.soundVolume??80)/30));g.gain.setValueAtTime(scaled,c.currentTime);g.gain.exponentialRampToValueAtTime(0.001,c.currentTime+duration);o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+duration)}catch(e){}}
+function beep(freq=900,duration=0.16,volume=0.22){try{const c=getAudio();if(!c)return;const o=c.createOscillator(),g=c.createGain();o.type='square';o.frequency.value=freq;const scaled=Math.min(0.99,volume*(Number(state.soundVolume??80)/30));g.gain.setValueAtTime(scaled,c.currentTime);g.gain.exponentialRampToValueAtTime(0.001,c.currentTime+duration);o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+duration)}catch(e){}}
 function timerTick(){
   if(!timerEndAt){return}
   const sec=Math.max(0,Math.ceil((timerEndAt-Date.now())/1000));
@@ -70,7 +70,7 @@ function timerTick(){
   out.textContent=String(Math.floor(sec/60)).padStart(2,'0')+':'+String(sec%60).padStart(2,'0');
   if(sec!==timerLastSec){
     if(sec>=1&&sec<=5){beep(sec===1?1250:950,sec===1?0.28:0.14,sec===1?0.30:0.23);timerLastSec=sec;}
-    else if(sec===0){beep(1500,0.55,0.34);timerLastSec=0;}
+    else if(sec===0){beep(1300,0.28,0.34);setTimeout(()=>beep(1600,0.32,0.34),180);setTimeout(()=>beep(1300,0.38,0.34),390);timerLastSec=0;}
   }
   if(sec<=0){timerId=null;timerEndAt=0;setTimeout(()=>{const t=document.getElementById('timer');if(t)t.style.display='none'},700);return}
   clearTimeout(timerId);timerId=setTimeout(timerTick,250);
@@ -87,7 +87,7 @@ function stopTimer(){if(timerId)clearTimeout(timerId);timerId=null;timerEndAt=0;
 document.addEventListener('click',e=>{if(e.target.id==='skip')stopTimer();else if(e.target.closest('button'))getAudio()});
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&timerEndAt)timerTick()});
 
-function showSoundSettings(){const root=document.getElementById('modalRoot');const current=Number(state.soundVolume??80);root.innerHTML=`<div class="modalBack"><div class="modal"><div class="modalHead">HLASITOST UPOZORNĚNÍ</div><div class="dialog"><p>Nastav hlasitost zvuku časovače. Vyšší hodnota zesílí pípání v aplikaci.</p><div class="soundVolumeRow"><span>🔈</span><input id="soundVolumeRange" type="range" min="20" max="100" step="5" value="${current}"><span>🔊</span></div><div id="soundVolumeValue" class="soundVolumeValue">${current} %</div><button type="button" class="blue wide" id="testSound">▶ VYZKOUŠET ZVUK</button><p class="smallNote">Skutečná hlasitost závisí také na hlasitosti médií v telefonu a na tom, zda systém dovolí přehrávání na pozadí.</p></div><div class="editorBottom"><button class="blue" id="closeSound">HOTOVO</button></div></div></div>`;const slider=document.getElementById('soundVolumeRange');slider.oninput=()=>{state.soundVolume=Number(slider.value);save();document.getElementById('soundVolumeValue').textContent=slider.value+' %';const b=document.getElementById('soundSetting');if(b)b.textContent='🔊 HLASITOST UPOZORNĚNÍ: '+slider.value+' %'};document.getElementById('testSound').onclick=()=>{getAudio();beep(1200,0.32,0.34);setTimeout(()=>beep(1500,0.4,0.34),180)};document.getElementById('closeSound').onclick=()=>{root.innerHTML='';render()};}
+function showSoundSettings(){const root=document.getElementById('modalRoot');const current=Number(state.soundVolume??80);root.innerHTML=`<div class="modalBack"><div class="modal"><div class="modalHead">HLASITOST UPOZORNĚNÍ</div><div class="dialog"><p>Nastav hlasitost zvuku časovače. Vyšší hodnota zesílí pípání v aplikaci.</p><div class="soundVolumeRow"><span>🔈</span><input id="soundVolumeRange" type="range" min="20" max="100" step="5" value="${current}"><span>🔊</span></div><div id="soundVolumeValue" class="soundVolumeValue">${current} %</div><button type="button" class="blue wide" id="testSound">▶ VYZKOUŠET ZVUK</button><p class="smallNote">Skutečná hlasitost závisí také na hlasitosti médií v telefonu a na tom, zda systém dovolí přehrávání na pozadí.</p></div><div class="editorBottom"><button class="blue" id="closeSound">HOTOVO</button></div></div></div>`;const slider=document.getElementById('soundVolumeRange');slider.oninput=()=>{state.soundVolume=Number(slider.value);save();document.getElementById('soundVolumeValue').textContent=slider.value+' %';const b=document.getElementById('soundSetting');if(b)b.textContent='🔊 HLASITOST UPOZORNĚNÍ: '+slider.value+' %'};document.getElementById('testSound').onclick=()=>{getAudio();beep(1300,0.3,0.34);setTimeout(()=>beep(1600,0.34,0.34),180);setTimeout(()=>beep(1300,0.4,0.34),390)};document.getElementById('closeSound').onclick=()=>{root.innerHTML='';render()};}
 function showEditor(){
   const di=dayIndex(state.selectedDate);
   const date=state.selectedDate;
