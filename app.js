@@ -59,7 +59,7 @@ let timerTotalSec=0;
 let timerLastSec=null;
 let audioCtx=null;
 function getAudio(){try{if(!audioCtx){audioCtx=new (window.AudioContext||window.webkitAudioContext)();}if(audioCtx.state==='suspended')audioCtx.resume();return audioCtx}catch(e){return null}}
-function beep(freq=900,duration=0.16,volume=0.22){try{const c=getAudio();if(!c)return;const o=c.createOscillator(),g=c.createGain();o.type='square';o.frequency.value=freq;const scaled=Math.min(0.99,volume*(Number(state.soundVolume??80)/30));g.gain.setValueAtTime(scaled,c.currentTime);g.gain.exponentialRampToValueAtTime(0.001,c.currentTime+duration);o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+duration)}catch(e){}}
+function beep(freq=900,duration=0.16,volume=0.22){try{const c=getAudio();if(!c)return;const o=c.createOscillator(),g=c.createGain();o.type='square';o.frequency.value=freq;const scaled=Math.min(0.99,volume*(Number(state.soundVolume??80)/30)*1.3);g.gain.setValueAtTime(scaled,c.currentTime);g.gain.exponentialRampToValueAtTime(0.001,c.currentTime+duration);o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+duration)}catch(e){}}
 function timerTick(){
   if(!timerEndAt){return}
   const sec=Math.max(0,Math.ceil((timerEndAt-Date.now())/1000));
