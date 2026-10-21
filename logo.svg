@@ -1,12 +1,12 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-<circle cx="256" cy="256" r="248" fill="#fff" stroke="#111" stroke-width="8"/>
-<circle cx="256" cy="256" r="224" fill="#111" stroke="#fff" stroke-width="12"/>
-<circle cx="256" cy="256" r="178" fill="#fff" stroke="#111" stroke-width="9"/>
-<circle cx="256" cy="256" r="145" fill="#111"/>
-<path d="M340 166 A118 118 0 1 0 340 346" fill="none" stroke="#fff" stroke-width="30" stroke-linecap="square"/>
-<path d="M176 151 V362 M176 256 H242" fill="none" stroke="#fff" stroke-width="28" stroke-linecap="square"/>
-<path d="M260 162 V350 M260 256 L344 174 M260 256 L347 347" fill="none" stroke="#fff" stroke-width="27" stroke-linecap="square" stroke-linejoin="miter"/>
-<path d="M192 104 L256 34 L320 104" fill="#fff" stroke="#111" stroke-width="9" stroke-linejoin="round"/>
-<g fill="#bbb" stroke="#666" stroke-width="5"><circle cx="80" cy="180" r="17"/><circle cx="432" cy="180" r="17"/><circle cx="256" cy="438" r="17"/></g>
-<g fill="#888" stroke="#eee" stroke-width="2"><circle cx="80" cy="180" r="7"/><circle cx="432" cy="180" r="7"/><circle cx="256" cy="438" r="7"/></g>
+<defs><linearGradient id="green" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#006b3b"/><stop offset="1" stop-color="#004b2b"/></linearGradient><linearGradient id="gold" x1="0" y1="0" x2=".2" y2="1"><stop stop-color="#ffe22b"/><stop offset="1" stop-color="#f3b900"/></linearGradient><linearGradient id="metal" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#777"/><stop offset=".45" stop-color="#eee"/><stop offset="1" stop-color="#999"/></linearGradient></defs>
+<circle cx="256" cy="256" r="249" fill="url(#green)" stroke="#102c1b" stroke-width="7"/>
+<circle cx="256" cy="256" r="225" fill="url(#green)" stroke="url(#gold)" stroke-width="20"/>
+<circle cx="256" cy="256" r="177" fill="url(#green)" stroke="url(#gold)" stroke-width="28"/>
+<path d="M340 166 A118 118 0 1 0 340 346" fill="none" stroke="url(#gold)" stroke-width="30" stroke-linecap="square"/>
+<path d="M176 151 V362 M176 256 H242" fill="none" stroke="url(#gold)" stroke-width="28" stroke-linecap="square"/>
+<path d="M260 162 V350 M260 256 L344 174 M260 256 L347 347" fill="none" stroke="url(#gold)" stroke-width="27" stroke-linecap="square" stroke-linejoin="miter"/>
+<path d="M192 104 L256 34 L320 104" fill="url(#gold)" stroke="#123c24" stroke-width="9" stroke-linejoin="round"/>
+<g fill="url(#metal)" stroke="#666" stroke-width="5"><circle cx="80" cy="180" r="17"/><circle cx="432" cy="180" r="17"/><circle cx="256" cy="438" r="17"/></g>
+<g fill="#aaa" stroke="#eee" stroke-width="2"><circle cx="80" cy="180" r="7"/><circle cx="432" cy="180" r="7"/><circle cx="256" cy="438" r="7"/></g>
 </svg>
